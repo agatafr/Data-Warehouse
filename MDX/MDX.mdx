@@ -1,0 +1,84 @@
+--1. Compare the number of absences of students in relation to the previous months. 
+WITH MEMBER [Prev month amount] AS  '(PARALLELPERIOD([Date].[DATE HIERARCHY].[Month]
+, 1, [Date].[DATE HIERARCHY].CurrentMember), [Measures].[Fact Of Attendance Count])'
+SELECT NON EMPTY { [Measures].[Fact Of Attendance Count] } ON COLUMNS, NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS * [Date].[Month].[Month].ALLMEMBERS ) }
+DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS FROM ( SELECT ( { [Date].[Year].[All] } ) ON COLUMNS FROM ( SELECT ( { [Date].[Month].[All] } ) ON COLUMNS 
+FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Absent] } ) ON COLUMNS FROM [School DW]))) WHERE ( [Dim Attendance].[Attendance Type].&[Absent] );
+
+--2. What is the most frequently present reason of absence in current and previous- months? 
+SELECT NON EMPTY { [Measures].[Fact Of Attendance Count] } ON COLUMNS, 
+NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS * [Date].[Month].[Month].ALLMEMBERS * [Dim Attendance].[Reason Name].[Reason Name].ALLMEMBERS ) } 
+DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS FROM ( SELECT ( { [Dim Attendance].[Reason Name].[All] } ) ON COLUMNS 
+FROM ( SELECT ( { [Date].[Year].[All] } ) ON COLUMNS FROM ( SELECT ( { [Date].[Month].[All] } ) ON COLUMNS FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Absent] } ) ON COLUMNS 
+FROM [School DW])))) WHERE ( [Dim Attendance].[Attendance Type].&[Absent] );
+
+--3. What is the impact of the hour of lesson start on the average number of absences for each month? 
+SELECT NON EMPTY { [Measures].[Fact Of Attendance Count] } ON COLUMNS, 
+NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS * [Date].[Month].[Month].ALLMEMBERS * [Time].[Hour].[Hour].ALLMEMBERS ) } 
+DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS FROM ( SELECT ( { [Time].[Hour].[All] } ) ON COLUMNS 
+FROM ( SELECT ( { [Date].[Year].[All] } ) ON COLUMNS FROM ( SELECT ( { [Date].[Month].[All] } ) ON COLUMNS FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Absent] } ) ON COLUMNS 
+FROM [School DW])))) WHERE ( [Dim Attendance].[Attendance Type].&[Absent] );
+
+--4. What is the rate of unexcused absences in the current month in relation to previous months? 
+SELECT NON EMPTY { [Measures].[Fact Of Attendance-- Count] } ON COLUMNS, 
+NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS * [Date].[Month].[Month].ALLMEMBERS ) } 
+DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS FROM ( SELECT ( { [Dim Attendance].[Reason Name].&[Unexcused] } ) ON COLUMNS 
+FROM ( SELECT ( { [Date].[Year].[All] } ) ON COLUMNS FROM ( SELECT ( { [Date].[Month].[All] } ) ON COLUMNS 
+FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Absent] } ) ON COLUMNS FROM [School DW])))) WHERE ( [Dim Attendance].[Attendance Type].&[Absent], [Dim Attendance].[Reason Name].&[Unexcused] );
+
+--5. What is the average ratio of tardiness per month?
+ SELECT NON EMPTY { [Measures].[Ratio_of_Tardiness] } ON COLUMNS, NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS
+ *[Date].[Month].[Month].ALLMEMBERS * [Dim Attendance].[Attendance Type].[Attendance Type].ALLMEMBERS ) } 
+ DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Tardy] } ) 
+ ON COLUMNS FROM [School DW]) CELL PROPERTIES VALUE, BACK_COLOR, FORE_COLOR, FORMATTED_VALUE, FORMAT_STRING, FONT_NAME, FONT_SIZE, FONT_FLAGS
+
+-
+--6. What is the average level of absences in the week before the summer holidays? 
+SELECT NON EMPTY { [Measures].[Fact Of Attendance Count] } ON COLUMNS, 
+NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS * [Date].[Month].[Month].ALLMEMBERS * [Date].[Day].[Day].ALLMEMBERS ) } 
+DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS FROM ( SELECT ( { [Date].[Year].[All] } ) ON COLUMNS 
+FROM ( SELECT ( { [Date].[Month].&[6] } ) ON COLUMNS FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Absent] } ) ON COLUMNS 
+FROM [School DW]))) WHERE ( [Dim Attendance].[Attendance Type].&[Absent] );
+
+--7. What impact on monthly average number of absences have the lesson with specific teacher? 
+SELECT NON EMPTY { [Measures].[Fact Of Attendance Count] } ON COLUMNS,
+NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS * [Date].[Month].[Month].ALLMEMBERS * [Dim Lesson].[Teacher ID].ALLMEMBERS ) } 
+DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS FROM ( SELECT ( { [Dim Lesson].[Teacher ID].[All] } ) ON COLUMNS 
+FROM ( SELECT ( { [Date].[Month].[All] } ) ON COLUMNS FROM ( SELECT ( { [Date].[Year].[All] } ) ON COLUMNS 
+FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Absent] } ) ON COLUMNS 
+FROM [School DW])))) WHERE ( [Dim Attendance].[Attendance Type].&[Absent] );
+
+--8. What impact on monthly average number of absences have specific subject? 
+SELECT NON EMPTY { [Measures].[Fact Of Attendance Count] } ON COLUMNS, 
+NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS * [Date].[Month].[Month].ALLMEMBERS * [Dim Lesson].[Subject Name].MEMBERS ) } 
+DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS 
+FROM ( SELECT ( { [Dim Lesson].[Subject Name].[All]} ) ON COLUMNS 
+FROM ( SELECT ( { [Date].[Month].[All] } ) ON COLUMNS FROM ( SELECT ( { [Date].[Year].[All] } ) ON COLUMNS 
+FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Absent] } ) ON COLUMNS 
+FROM [School DW])))) WHERE ( [Dim Attendance].[Attendance Type].&[Absent] );
+
+--9. What type of events are the most frequently missed by students from each class? 
+SELECT NON EMPTY { [Measures].[Fact Of Attendance Count] } ON COLUMNS,
+       NON EMPTY { TOPCOUNT(
+          FILTER([Dim Event].[Event Type].[Event Type].ALLMEMBERS, NOT [Dim Event].[Event Type].CurrentMember IS [Dim Event].[Event Type].&[-1]),
+          3,
+          [Measures].[Fact Of Attendance Count]
+       ) }
+       DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS
+FROM [School DW]
+WHERE ( [Dim Attendance].[Attendance Type].&[Absent] );
+
+--10. How event locations influence the number of absent students from each class? 
+SELECT NON EMPTY { [Measures].[Fact Of Attendance Count] } ON COLUMNS, 
+NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS * [Date].[Month].[Month].ALLMEMBERS * [Dim Event].[Location].[Location].ALLMEMBERS * [Dim Student].[Class].[Class].ALLMEMBERS ) } 
+DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS 
+FROM ( SELECT ( { [Dim Event].[Location].&[Gdansk], [Dim Event].[Location].&[Karpacz], [Dim Event].[Location].&[Plock], [Dim Event].[Location].&[Zakopane], [Dim Event].[Location].&[Warszawa] } ) ON COLUMNS 
+FROM ( SELECT ( { [Dim Student].[Class].[All] } ) ON COLUMNS FROM ( SELECT ( { [Date].[Month].&[6] } ) ON COLUMNS 
+FROM ( SELECT ( { [Date].[Year].[All] } ) ON COLUMNS FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Absent] } ) ON COLUMNS 
+FROM [School DW]))))) WHERE ( [Dim Attendance].[Attendance Type].&[Absent] );
+
+--11. In which month was the biggest sum of minutes of tardiness?
+ SELECT NON EMPTY { [Measures].[Minutes Of Tardiness] } ON COLUMNS, NON EMPTY { ([Date].[Year].[Year].ALLMEMBERS * 
+ [Date].[Month].[Month].ALLMEMBERS * [Dim Attendance].[Attendance Type].[Attendance Type].ALLMEMBERS ) } 
+ DIMENSION PROPERTIES MEMBER_CAPTION, MEMBER_UNIQUE_NAME ON ROWS FROM ( SELECT ( { [Dim Attendance].[Attendance Type].&[Tardy] } ) 
+ ON COLUMNS FROM [School DW]);
