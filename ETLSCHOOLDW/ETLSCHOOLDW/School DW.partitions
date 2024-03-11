@@ -1,0 +1,36 @@
+﻿<Cube xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:ddl200="http://schemas.microsoft.com/analysisservices/2010/engine/200" xmlns:ddl200_200="http://schemas.microsoft.com/analysisservices/2010/engine/200/200" xmlns:ddl300="http://schemas.microsoft.com/analysisservices/2011/engine/300" xmlns:ddl300_300="http://schemas.microsoft.com/analysisservices/2011/engine/300/300" xmlns:ddl400="http://schemas.microsoft.com/analysisservices/2012/engine/400" xmlns:ddl400_400="http://schemas.microsoft.com/analysisservices/2012/engine/400/400" xmlns:ddl500="http://schemas.microsoft.com/analysisservices/2013/engine/500" xmlns:ddl500_500="http://schemas.microsoft.com/analysisservices/2013/engine/500/500" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0" dwd:design-time-name="52008bd1-31d4-4eee-b7c4-c6b894fc8df8" xmlns="http://schemas.microsoft.com/analysisservices/2003/engine">
+  <ID>School DW</ID>
+  <MeasureGroups>
+    <MeasureGroup>
+      <ID>Fact Of Attendance</ID>
+      <Partitions>
+        <Partition dwd:design-time-name="0a52d174-410e-457b-9b5a-72d1aaa9ea31">
+          <ID>Fact Of Attendance</ID>
+          <Name>Fact Of Attendance</Name>
+          <CreatedTimestamp>0001-01-01T00:00:00Z</CreatedTimestamp>
+          <LastSchemaUpdate>0001-01-01T00:00:00Z</LastSchemaUpdate>
+          <LastProcessed>0001-01-01T00:00:00Z</LastProcessed>
+          <State>Unprocessed</State>
+          <Source xsi:type="DsvTableBinding" dwd:design-time-name="92a55358-f0f8-45ef-8340-fd5ca26b3767">
+            <DataSourceViewID>School DW</DataSourceViewID>
+            <TableID>dbo_Fact_of_attendance</TableID>
+          </Source>
+          <StorageMode>Molap</StorageMode>
+          <CurrentStorageMode>Molap</CurrentStorageMode>
+          <ProcessingMode>Regular</ProcessingMode>
+          <ProactiveCaching dwd:design-time-name="366d2a50-d4f9-4763-8581-9ea0f0793c31">
+            <SilenceInterval>-PT1S</SilenceInterval>
+            <Latency>-PT1S</Latency>
+            <SilenceOverrideInterval>-PT1S</SilenceOverrideInterval>
+            <ForceRebuildInterval>-PT1S</ForceRebuildInterval>
+            <AggregationStorage>MolapOnly</AggregationStorage>
+            <Source xsi:type="ProactiveCachingInheritedBinding" dwd:design-time-name="e761b162-eebe-4b3d-a016-1fec79cb23ac">
+              <NotificationTechnique>Server</NotificationTechnique>
+            </Source>
+          </ProactiveCaching>
+          <EstimatedRows>1424661</EstimatedRows>
+        </Partition>
+      </Partitions>
+    </MeasureGroup>
+  </MeasureGroups>
+</Cube>
