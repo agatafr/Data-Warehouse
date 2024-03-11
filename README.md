@@ -29,3 +29,6 @@ The Requirements folder includes essential project documents, such as the projec
 13. School Implementation for ETL (in Visual Studio)
     
 The School Implementation folder within Visual Studio contains the specific implementation of ETL processes tailored to the school data. It includes project files, configurations, and any additional documentation related to the ETL implementation.
+
+
+The project was designed and executed by Agata Fenska-Rompa and Mikołaj Baliński at Gdańsk University of Technology in 2023.
